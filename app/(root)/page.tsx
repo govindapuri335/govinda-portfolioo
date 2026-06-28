@@ -134,7 +134,7 @@ export default function IndexPage() {
                     size: "lg",
                   })
                 )}
-                aria-label="Contact krishna khatri"
+                aria-label="Contact Govinda Puri"
               >
                 <Icons.contact className="w-4 h-4 mr-2" /> Contact
               </Link>

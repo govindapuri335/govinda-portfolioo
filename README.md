@@ -1,7 +1,7 @@
 ---
-# Krishna Khatri — Portfolio 
+# Govinda Puri — Portfolio 
 
-Welcome — this is a personalized fork of the Minimal Next.js portfolio template, adapted for Krishna Khatri. It is configured to showcase projects, experience, and technical writing. Use this repo as the starting point for your own portfolio site.
+Welcome — this is a personalized fork of the Minimal Next.js portfolio template, adapted for Govinda Puri. It is configured to showcase projects, experience, and technical writing. Use this repo as the starting point for your own portfolio site.
 
 ## About
 
@@ -58,5 +58,3 @@ Make small edits in these files to personalize the site quickly.
 - Email: khatrikrissna11@gmail.com
 
 ---
-
-

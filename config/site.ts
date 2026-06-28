@@ -1,9 +1,9 @@
 export const siteConfig = {
-  name: "Krishna Khatri - Computer Engineer & Web Developer",
-  authorName: "Krishna Khatri",
+  name: "Govinda Puri - Computer Engineer & Web Developer",
+  authorName: "Govinda Puri",
   username: "Krishna8665",
   description:
-    "Krishna Khatri — Computer Engineer and Web Developer building web applications and exploring AI. Explore my projects, experience, and contributions.",
+    "Govinda Puri — Computer Engineer and Web Developer building web applications and exploring AI. Explore my projects, experience, and contributions.",
   url: "https://github.com/Krishna8665",
   links: {
     twitter: "",
@@ -27,7 +27,7 @@ export const siteConfig = {
   // does not supply one. keep this in sync with `iconIco` or replace with a
   // dedicated social preview graphic.
   keywords: [
-    "Krishna Khatri",
+    "Govinda Puri",
     "Computer Engineer",
     "Web Developer",
     "Full Stack Developer",
