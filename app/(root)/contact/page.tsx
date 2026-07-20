@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import PageContainer from "@/components/common/page-container";
-import SocialLinksCard from "@/components/contact/github-redirect-card";
+import SocialLinksCard from "@/components/contact/social-links-card";
 import { ContactForm } from "@/components/forms/contact-form";
 import { pagesConfig } from "@/config/pages";
 

@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "Govinda Puri",
     short_name: "Govinda Puri",
     description:
-      "Govinda Puri — Computer Engineer and Web Developer building web applications and exploring AI.",
+      "Govinda Puri — Credit Analyst in Equipment Finance focused on underwriting, lender submissions, and business analysis.",
     start_url: "/",
     display: "standalone",
     background_color: "#ffffff",
@@ -25,9 +25,9 @@ export default function manifest(): MetadataRoute.Manifest {
     ],
     categories: [
       "portfolio",
-      "developer",
-      "web development",
-      "software engineering",
+      "finance",
+      "business",
+      "professional",
     ],
     lang: "en",
     dir: "ltr",

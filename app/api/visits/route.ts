@@ -157,7 +157,7 @@ export async function GET(req: Request) {
     const g = await (async () => {
       try {
         const res = await fetch(
-          `https://api.countapi.xyz/get/krishna-portfolio/global`
+          `https://api.countapi.xyz/get/govinda-portfolio/global`
         );
         if (!res.ok) return null;
         return await res.json();
@@ -279,7 +279,7 @@ export async function POST(req: Request) {
       }
 
       // As a last resort, fall back to CountAPI hit
-      const g = await countapiHitGlobal("krishna-portfolio");
+      const g = await countapiHitGlobal("govinda-portfolio");
       global = Number(g?.value ?? 0);
       return NextResponse.json(
         { global },
@@ -298,7 +298,7 @@ export async function POST(req: Request) {
         return Number(g || 0);
       }
       const r = await fetch(
-        `https://api.countapi.xyz/get/krishna-portfolio/global`
+        `https://api.countapi.xyz/get/govinda-portfolio/global`
       ).catch(() => null);
       if (!r) return 0;
       const j = await r.json().catch(() => null);

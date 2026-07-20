@@ -111,7 +111,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       "@type": "Person",
       name: siteConfig.authorName,
       url: siteConfig.url,
-      sameAs: [siteConfig.links.github, siteConfig.links.twitter],
+      sameAs: [siteConfig.links.linkedin, siteConfig.links.email],
     },
     publisher: {
       "@type": "Person",

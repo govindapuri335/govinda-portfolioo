@@ -9,152 +9,53 @@ export interface skillsInterface {
 
 export const skillsUnsorted: skillsInterface[] = [
   {
-    name: "Next.js",
+    name: "Credit Analysis",
     description:
-      "Effortlessly build dynamic apps with routing, layouts, loading UI, and API routes.",
+      "Evaluate borrower strength, deal structure, and repayment risk across equipment finance requests.",
     rating: 5,
-    icon: Icons.nextjs,
+    icon: Icons.billing,
   },
   {
-    name: "React",
+    name: "Financial Statement Review",
     description:
-      "Craft interactive user interfaces using components, state, props, and virtual DOM.",
+      "Read income statements, balance sheets, and cash flow statements to find trends and risk signals.",
     rating: 5,
-    icon: Icons.react,
+    icon: Icons.post,
   },
   {
-    name: "GraphQL",
+    name: "Cash Flow Analysis",
     description:
-      "Fetch data precisely with a powerful query language for APIs and runtime execution.",
-    rating: 4,
-    icon: Icons.graphql,
-  },
-  {
-    name: "Nest.js",
-    description:
-      "Create scalable and modular applications with a progressive Node.js framework.",
-    rating: 4,
-    icon: Icons.nestjs,
-  },
-  {
-    name: "express.js",
-    description:
-      "Build web applications and APIs quickly using a fast, unopinionated Node.js framework.",
+      "Measure monthly cash performance and repayment capacity from bank statements and operating activity.",
     rating: 5,
-    icon: Icons.express,
+    icon: Icons.calendar,
   },
   {
-    name: "Node.js",
+    name: "Business Credit",
     description:
-      "Run JavaScript on the server side, enabling dynamic and responsive applications.",
+      "Review business credit history, payment patterns, and overall credit behavior across applicants and guarantors.",
     rating: 5,
-    icon: Icons.nodejs,
+    icon: Icons.userFill,
   },
   {
-    name: "MongoDB",
+    name: "PayNet",
     description:
-      "Store and retrieve data seamlessly with a flexible and scalable NoSQL database.",
+      "Use PayNet history to understand prior leasing behavior, payment performance, and trade trends.",
+    rating: 4,
+    icon: Icons.link,
+  },
+  {
+    name: "UCC Review",
+    description:
+      "Check UCC filings to understand collateral position and potential lien conflicts.",
+    rating: 4,
+    icon: Icons.page,
+  },
+  {
+    name: "Risk Assessment",
+    description:
+      "Identify repayment, concentration, and structure risks before lender submissions move forward.",
     rating: 5,
-    icon: Icons.mongodb,
-  },
-  {
-    name: "Typescript",
-    description:
-      "Enhance JavaScript with static types, making code more understandable and reliable.",
-    rating: 5,
-    icon: Icons.typescript,
-  },
-  {
-    name: "Javascript",
-    description:
-      "Create interactive and dynamic web experiences with the versatile scripting language.",
-    rating: 5,
-    icon: Icons.javascript,
-  },
-  {
-    name: "HTML 5",
-    description:
-      "Structure web content beautifully with the latest version of HyperText Markup Language.",
-    rating: 4,
-    icon: Icons.html5,
-  },
-  {
-    name: "CSS 3",
-    description:
-      "Style web pages creatively with the latest iteration of Cascading Style Sheets.",
-    rating: 4,
-    icon: Icons.css3,
-  },
-  {
-    name: "React Native",
-    description:
-      "Develop cross-platform mobile apps using React for consistent and engaging experiences.",
-    rating: 4,
-    icon: Icons.react,
-  },
-  {
-    name: "Angular",
-    description:
-      "Build dynamic web apps with a TypeScript-based open-source framework by Google.",
-    rating: 3,
-    icon: Icons.angular,
-  },
-  {
-    name: "Redux",
-    description:
-      "Manage app state effectively using a predictable and centralized state container.",
-    rating: 4,
-    icon: Icons.redux,
-  },
-  {
-    name: "Socket.io",
-    description:
-      "Enable real-time, bidirectional communication between clients and servers effortlessly.",
-    rating: 3,
-    icon: Icons.socketio,
-  },
-  {
-    name: "Material UI",
-    description:
-      "Create stunning and responsive UIs with a popular React UI framework.",
-    rating: 4,
-    icon: Icons.mui,
-  },
-
-  {
-    name: "Tailwind CSS",
-    description:
-      "Design beautiful, modern websites faster with a utility-first CSS framework.",
-    rating: 5,
-    icon: Icons.tailwindcss,
-  },
-  {
-    name: "AWS",
-    description:
-      "Utilize Amazon Web Services to build and deploy scalable, reliable, and secure applications.",
-    rating: 3,
-    icon: Icons.amazonaws,
-  },
-  {
-    name: "Bootstrap",
-    description:
-      "Quickly create responsive and appealing web designs using a popular CSS framework.",
-    rating: 2,
-    icon: Icons.bootstrap,
-  },
-  {
-    name: "MySQL",
-    description:
-      "Manage and organize relational databases efficiently for data-driven applications.",
-    rating: 2,
-    icon: Icons.mysql,
-  },
-  {
-    name: "Netlify",
-    description:
-      "Manage and organize relational databases efficiently for data-driven applications.",
-    rating: 4,
-    icon: Icons.netlify,
+    icon: Icons.warning,
   },
 ];
 

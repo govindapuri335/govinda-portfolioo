@@ -1,39 +1,31 @@
 export const siteConfig = {
-  name: "Govinda Puri - Computer Engineer & Web Developer",
+  name: "Govinda Puri",
   authorName: "Govinda Puri",
-  username: "Krishna8665",
+  username: "govindapuri",
   description:
-    "Govinda Puri — Computer Engineer and Web Developer building web applications and exploring AI. Explore my projects, experience, and contributions.",
-  url: "https://github.com/Krishna8665",
+    "Govinda Puri — Credit Analyst in Equipment Finance focused on underwriting support, lender submissions, business analysis, credit risk review, and equipment leasing.",
+  url: "https://www.govindapuri.com", // ← Change this to your final domain later
   links: {
     twitter: "",
-    github: "https://github.com/Krishna8665",
+    linkedin: "https://www.linkedin.com/in/govinda-puri/",
+    email: "mailto:founder@govindapuri.com",
   },
 
-  // favicon used for browser tab. for example place `letterK.jpg` in
-  // `public/` and reference it here. the manifest will also pick up the
-  // same path so it is used for Progressive Web App icons.
-  // add a query string when you replace the file so browsers will refetch it
-  // instead of using a cached version. change `?v=2` each time you update.
-  // append a version query so browsers will refetch when the file changes
-  iconIco: "/letterK.jpg",
-  logoIcon: "/letterK.jpg",
-  // default image used in Open Graph metadata when a specific page/post does
-  // not supply one. this should point at a square graphic in `public/` and
-  // is referenced throughout the app. keeping it in the config makes it easy
-  // to change the site preview all at once.
-  ogImage: "/letterK.jpg",
-  // default image used in Open Graph metadata when a specific page/post
-  // does not supply one. keep this in sync with `iconIco` or replace with a
-  // dedicated social preview graphic.
+  // Images - replace these with your own professional files in the `public/` folder
+  iconIco: "/favicon.ico",
+  logoIcon: "/logo.png", // You can use your initial (e.g. letterG.png)
+  ogImage: "/og-image.jpg", // Best size: 1200x630 px for social previews
+
   keywords: [
     "Govinda Puri",
-    "Computer Engineer",
-    "Web Developer",
-    "Full Stack Developer",
-    "React",
-    "Next.js",
-    "TypeScript",
-    "Portfolio",
+    "Credit Analyst",
+    "Equipment Finance",
+    "Commercial Lending",
+    "Underwriting",
+    "Credit Risk Analysis",
+    "CLFP",
+    "Long Island",
+    "New York",
+    "Finance Professional",
   ],
 };

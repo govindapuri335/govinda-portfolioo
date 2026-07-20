@@ -168,7 +168,7 @@ export function ContactForm() {
                   <FormItem className="flex-1">
                     <FormLabel>Username/URL</FormLabel>
                     <FormControl>
-                      <Input placeholder="@krishna or https://..." {...field} />
+                      <Input placeholder="LinkedIn URL or email" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

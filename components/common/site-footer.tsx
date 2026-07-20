@@ -7,13 +7,19 @@ import { SocialLinks } from "@/config/socials";
 import { cn } from "@/lib/utils";
 
 export function SiteFooter({ className }: React.HTMLAttributes<HTMLElement>) {
+  const linkedIn = SocialLinks.find((item) => item.name === "LinkedIn");
+  const LinkedInIcon = linkedIn?.icon;
+
   return (
     <footer className={cn(className)}>
-      <div className="container flex items-center justify-center gap-8 mt-10 py-10 md:h-24">
-        {SocialLinks.map((item, ind) => (
-          <CustomTooltip icon={item.icon} text={item.username} key={ind}>
+      <div className="container flex flex-col items-center justify-center gap-4 mt-10 py-10 md:h-24">
+        <p className="text-sm text-muted-foreground text-center">
+          © 2026 Govinda. All rights reserved.
+        </p>
+        {linkedIn && LinkedInIcon ? (
+          <CustomTooltip icon={linkedIn.icon} text={linkedIn.username}>
             <Link
-              href={item.link}
+              href={linkedIn.link}
               target="_blank"
               className={cn(
                 buttonVariants({
@@ -23,10 +29,10 @@ export function SiteFooter({ className }: React.HTMLAttributes<HTMLElement>) {
                 "h-10 w-10 p-2"
               )}
             >
-              <item.icon className="h-5 w-5" />
+              <LinkedInIcon className="h-5 w-5" />
             </Link>
           </CustomTooltip>
-        ))}
+        ) : null}
       </div>
     </footer>
   );

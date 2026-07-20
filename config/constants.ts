@@ -1,4 +1,18 @@
 export type ValidSkills =
+  | "Credit Analysis"
+  | "Equipment Finance"
+  | "Commercial Lending"
+  | "Financial Statement Review"
+  | "Risk Assessment"
+  | "Cash Flow Analysis"
+  | "Business Credit"
+  | "PayNet"
+  | "UCC Review"
+  | "SOS Review"
+  | "Vendor Due Diligence"
+  | "Microsoft Excel"
+  | "AI Productivity Tools"
+  | "Financial Analysis"
   | "Next.js"
   | "React"
   | "GraphQL"
@@ -85,8 +99,8 @@ export type ValidExpType = "Personal" | "Professional";
 
 export type ValidPages =
   | "home"
+  | "about"
   | "skills"
-  | "projects"
   | "experience"
   | "contact"
   | "resume"
