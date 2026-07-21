@@ -59,18 +59,20 @@ export const pagesConfig: PagesConfig = {
     },
   },
   blogs: {
-    title: "Blog",
-    description: "Insights, notes, and updates on finance and professional growth.",
+    title: "Blogs",
+    description:
+      "Insights, notes, and updates on finance and professional growth.",
     metadata: {
-      title: "Blog",
-      description: `${siteConfig.authorName}'s blog about finance, credit analysis, and professional growth.`,
+      title: "Blogs",
+      description: `${siteConfig.authorName}'s blogs about finance, credit analysis, and professional growth.`,
     },
   },
   experience: {
-    title: "Experience / What I Do",
-    description: "Credit underwriting support, business review, and finance-focused analysis.",
+    title: "Experience",
+    description:
+      "Credit underwriting support, business review, and finance-focused analysis.",
     metadata: {
-      title: "Experience / What I Do",
+      title: "Experience",
       description: `${siteConfig.authorName}'s credit underwriting and equipment finance experience.`,
     },
   },

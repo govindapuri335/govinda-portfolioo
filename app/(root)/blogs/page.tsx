@@ -25,7 +25,7 @@ export const metadata: Metadata = {
         url: siteConfig.ogImage ?? siteConfig.iconIco,
         width: 1200,
         height: 630,
-        alt: `${siteConfig.authorName} Blog`,
+        alt: `${siteConfig.authorName} Blogs`,
       },
     ],
   },
@@ -45,7 +45,7 @@ export default function BlogsPage() {
   const blogListSchema = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: `${siteConfig.authorName} — Blog`,
+    name: `${siteConfig.authorName} — Blogs`,
     description: pagesConfig.blogs.metadata.description,
     url: `${siteConfig.url}/blogs`,
     isPartOf: {
@@ -60,7 +60,7 @@ export default function BlogsPage() {
     },
     mainEntity: {
       "@type": "Blog",
-      name: `${siteConfig.authorName}'s Blog`,
+      name: `${siteConfig.authorName}'s Blogs`,
       description: pagesConfig.blogs.metadata.description,
       url: `${siteConfig.url}/blogs`,
       author: {

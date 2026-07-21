@@ -5,8 +5,8 @@ A Next.js portfolio site for a credit analyst in equipment finance. The site kee
 ## What’s included
 
 - Finance-focused homepage
-- About, Experience, Blog, Contact, and Skills pages
-- Blog CMS, admin tools, search, categories, and pagination
+- About, Experience, Blogs, Contact, and Skills pages
+- Blogs CMS, admin tools, search, categories, and pagination
 - Resume redirect with a local placeholder PDF
 
 ## Run locally

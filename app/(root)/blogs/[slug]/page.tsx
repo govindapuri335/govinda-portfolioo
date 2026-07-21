@@ -131,7 +131,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     }),
     inLanguage: "en-US",
     isPartOf: {
-      "@type": "Blog",
+      "@type": "Blogs",
       name: `${siteConfig.authorName}'s Blog`,
       url: `${siteConfig.url}/blogs`,
     },
