@@ -16,15 +16,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  experienceSections,
-  heroParagraphs,
-  learningSections,
-} from "@/config/experience";
+import { experienceSections, heroParagraphs } from "@/config/experience";
 import { pagesConfig } from "@/config/pages";
 import { siteConfig } from "@/config/site";
-import { featuredSkills } from "@/config/skills";
 import { getFeaturedBlogs } from "@/lib/blogs";
+import { getLearning } from "@/lib/admin/learning";
+import { getFeaturedSkills } from "@/lib/skills";
 import { cn } from "@/lib/utils";
 
 const profileImg = "/profile-img.jpg";
@@ -63,8 +60,20 @@ function BulletCard({
   );
 }
 
-export default function IndexPage() {
-  const featuredBlogs = getFeaturedBlogs();
+export const revalidate = 3600;
+
+export default async function IndexPage() {
+  const featuredBlogs = await getFeaturedBlogs();
+  const featuredSkills = await getFeaturedSkills();
+  const learning = await getLearning();
+
+  const learningSections = [
+    { title: learning.currentFocusTitle, bullets: learning.currentFocusBullets },
+    {
+      title: learning.certificationsTitle,
+      bullets: learning.certificationsBullets,
+    },
+  ];
 
   const personSchema = {
     "@context": "https://schema.org",

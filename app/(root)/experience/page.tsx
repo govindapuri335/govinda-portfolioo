@@ -3,15 +3,22 @@ import { Metadata } from "next";
 import { AnimatedSection } from "@/components/common/animated-section";
 import { AnimatedText } from "@/components/common/animated-text";
 import PageContainer from "@/components/common/page-container";
+import { CertificatesCarousel } from "@/components/experience/certificates-carousel";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { experienceSections, learningSections } from "@/config/experience";
+import Chip from "@/components/ui/chip";
 import { pagesConfig } from "@/config/pages";
 import { siteConfig } from "@/config/site";
+import type { Experience } from "@/db/schema";
+import { listCertificates } from "@/lib/admin/certificates";
+import { listExperiences } from "@/lib/admin/experience";
+import { getLearning } from "@/lib/admin/learning";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: pagesConfig.experience.metadata.title,
@@ -69,7 +76,55 @@ function BulletCard({
   );
 }
 
-export default function ExperiencePage() {
+function RoleCard({ role }: { role: Experience }) {
+  return (
+    <Card className="h-full border bg-background">
+      <CardHeader className="space-y-3 pb-3">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="space-y-1">
+            <CardTitle className="font-heading text-2xl">
+              {role.title}
+            </CardTitle>
+            <p className="text-sm font-medium text-foreground">
+              {role.company}
+            </p>
+            <p className="text-xs text-muted-foreground">{role.location}</p>
+          </div>
+          <Chip content={role.date} />
+        </div>
+        {role.description ? (
+          <p className="text-sm text-muted-foreground">{role.description}</p>
+        ) : null}
+      </CardHeader>
+      <CardContent>
+        <ul className="space-y-3 text-sm text-muted-foreground">
+          {role.bullets.map((bullet, i) => (
+            <li key={`${role.id}-${i}`} className="flex gap-3">
+              <span className="mt-1.5 h-2 w-2 rounded-full bg-primary shrink-0" />
+              <span>{bullet}</span>
+            </li>
+          ))}
+        </ul>
+      </CardContent>
+    </Card>
+  );
+}
+
+export default async function ExperiencePage() {
+  const [professionalExperience, certificates, learning] = await Promise.all([
+    listExperiences(),
+    listCertificates(),
+    getLearning(),
+  ]);
+
+  const learningSections = [
+    { title: learning.currentFocusTitle, bullets: learning.currentFocusBullets },
+    {
+      title: learning.certificationsTitle,
+      bullets: learning.certificationsBullets,
+    },
+  ];
+
   return (
     <PageContainer
       title={pagesConfig.experience.title}
@@ -82,25 +137,25 @@ export default function ExperiencePage() {
               as="h2"
               className="font-heading text-3xl leading-[1.1] sm:text-3xl md:text-5xl"
             >
-              Experience
+              Professional Experience
             </AnimatedText>
             <AnimatedText
               as="p"
               delay={0.2}
               className="max-w-[85%] leading-normal text-muted-foreground sm:text-lg sm:leading-7"
             >
-              Credit underwriting support, deal review, and lender-ready write-ups.
+              Roles across credit underwriting, retail banking, and small business research.
             </AnimatedText>
           </div>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 w-full items-stretch">
-            {experienceSections.map((section, index) => (
+          <div className="grid grid-cols-1 gap-4 w-full items-stretch">
+            {professionalExperience.map((role, index) => (
               <AnimatedSection
-                key={section.title}
+                key={role.id}
                 delay={0.1 * (index + 1)}
                 direction="up"
                 className="h-full"
               >
-                <BulletCard title={section.title} bullets={section.bullets} />
+                <RoleCard role={role} />
               </AnimatedSection>
             ))}
           </div>
@@ -119,7 +174,7 @@ export default function ExperiencePage() {
               delay={0.2}
               className="max-w-[85%] leading-normal text-muted-foreground sm:text-lg sm:leading-7"
             >
-              Ongoing study areas and completed training that support long-term growth.
+              Ongoing study areas alongside certifications and tools that support long-term growth.
             </AnimatedText>
           </div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 w-full items-stretch">
@@ -135,6 +190,29 @@ export default function ExperiencePage() {
             ))}
           </div>
         </section>
+
+        {certificates.length > 0 && (
+          <section className="space-y-6">
+            <div className="mx-auto flex max-w-[58rem] flex-col items-center space-y-4 text-center">
+              <AnimatedText
+                as="h2"
+                className="font-heading text-3xl leading-[1.1] sm:text-3xl md:text-5xl"
+              >
+                Certificates
+              </AnimatedText>
+              <AnimatedText
+                as="p"
+                delay={0.2}
+                className="max-w-[85%] leading-normal text-muted-foreground sm:text-lg sm:leading-7"
+              >
+                A rotating gallery of earned certificates. Use the arrows or dots to browse.
+              </AnimatedText>
+            </div>
+            <AnimatedSection direction="up" delay={0.1}>
+              <CertificatesCarousel certificates={certificates} />
+            </AnimatedSection>
+          </section>
+        )}
       </div>
     </PageContainer>
   );
