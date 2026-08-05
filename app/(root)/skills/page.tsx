@@ -4,7 +4,7 @@ import PageContainer from "@/components/common/page-container";
 import SkillsCard from "@/components/skills/skills-card";
 import { pagesConfig } from "@/config/pages";
 import { siteConfig } from "@/config/site";
-import { skills } from "@/config/skills";
+import { getPublicSkills } from "@/lib/skills";
 
 export const metadata: Metadata = {
   title: pagesConfig.skills.metadata.title,
@@ -36,7 +36,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default function SkillsPage() {
+// Revalidated on demand via revalidatePath("/skills") after admin edits, and
+// hourly as a safety net.
+export const revalidate = 3600;
+
+export default async function SkillsPage() {
+  const skills = await getPublicSkills();
   return (
     <PageContainer
       title={pagesConfig.skills.title}

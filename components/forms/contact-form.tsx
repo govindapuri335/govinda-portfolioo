@@ -81,18 +81,42 @@ export function ContactForm() {
         body: JSON.stringify(values),
       });
 
-      form.reset();
-
-      if (response.status === 200) {
+      if (response.ok) {
+        form.reset();
         storeModal.onOpen({
           title: "Thankyou!",
           description:
             "Your message has been received! I appreciate your contact and will get back to you shortly.",
           icon: Icons.successAnimated,
         });
+        return;
       }
+
+      // Extract server-provided error message when available.
+      let errorMessage = "Something went wrong. Please try again.";
+      try {
+        const data = (await response.json()) as { error?: string };
+        if (data?.error) errorMessage = data.error;
+      } catch {
+        // response body wasn't JSON; keep default message
+      }
+      if (response.status === 429) {
+        errorMessage =
+          errorMessage || "Too many submissions. Please try again later.";
+      }
+      storeModal.onOpen({
+        title: "Couldn't send",
+        description: errorMessage,
+        icon: Icons.warning,
+      });
     } catch (err) {
-      console.log("Err!", err);
+      console.error("[contact-form] submit error", err);
+      storeModal.onOpen({
+        title: "Network error",
+        description:
+          "We couldn't reach the server. Please check your connection and try again.",
+        icon: Icons.warning,
+      });
     }
   }
 

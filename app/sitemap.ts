@@ -3,7 +3,11 @@ import { MetadataRoute } from "next";
 import { siteConfig } from "@/config/site";
 import { getAllBlogsMeta } from "@/lib/blogs";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+// Regenerate the sitemap at most once per hour; on-demand revalidation from
+// the admin API routes will refresh it immediately when posts change.
+export const revalidate = 3600;
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = siteConfig.url;
 
   // Main pages
@@ -16,12 +20,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       url: `${baseUrl}/skills`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/projects`,
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.8,
@@ -53,7 +51,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   ];
 
   // Blog post pages — each gets its own sitemap entry with correct date
-  const blogs = getAllBlogsMeta();
+  const blogs = await getAllBlogsMeta();
   const blogRoutes: MetadataRoute.Sitemap = blogs.map((blog) => ({
     url: `${baseUrl}/blogs/${blog.slug}`,
     lastModified: new Date(blog.date),

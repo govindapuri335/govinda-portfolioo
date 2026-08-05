@@ -218,3 +218,39 @@ export const posts = pgTable(
 
 export type Post = typeof posts.$inferSelect;
 export type NewPost = typeof posts.$inferInsert;
+
+/**
+ * Contact form submissions.
+ *
+ * Every message sent from the public /contact form lands here. The admin
+ * dashboard reads this table to list, mark-as-read, and delete messages, so
+ * nothing is ever lost even if the email notification pipeline is down.
+ *
+ * `socials` stores the optional array of {platform, value} pairs as JSON text
+ * to avoid an extra join table (the shape is user-authored and unbounded).
+ * `read` toggles the "unread badge" in /admin/contacts. `ip` and `userAgent`
+ * are captured for basic abuse triage — never displayed to the public.
+ */
+export const contactSubmissions = pgTable(
+  "contact_submissions",
+  {
+    id: serial("id").primaryKey(),
+    name: text("name").notNull(),
+    email: text("email").notNull(),
+    message: text("message").notNull(),
+    socials: text("socials"),
+    read: boolean("read").notNull().default(false),
+    ip: varchar("ip", { length: 64 }),
+    userAgent: text("user_agent"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => ({
+    createdAtIdx: index("contact_submissions_created_at_idx").on(t.createdAt),
+    readIdx: index("contact_submissions_read_idx").on(t.read),
+  })
+);
+
+export type ContactSubmission = typeof contactSubmissions.$inferSelect;
+export type NewContactSubmission = typeof contactSubmissions.$inferInsert;

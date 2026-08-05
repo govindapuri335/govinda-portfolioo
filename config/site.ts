@@ -7,8 +7,8 @@ export const siteConfig = {
   url: "https://www.govindapuri.com", // ← Change this to your final domain later
   links: {
     twitter: "",
-    linkedin: "https://www.linkedin.com/in/govinda-puri/",
-    email: "mailto:founder@govindapuri.com",
+    linkedin: "https://www.linkedin.com/in/govindaspuri",
+    email: "mailto:puriprogress@gmail.com",
   },
 
   // Images - replace these with your own professional files in the `public/` folder

@@ -10,14 +10,14 @@ interface SocialInterface {
 export const SocialLinks: SocialInterface[] = [
   {
     name: "LinkedIn",
-    username: "Govinda Puri",
+    username: "linkedin.com/in/govindaspuri",
     icon: Icons.linkedin,
-    link: "https://www.linkedin.com/in/govinda-puri/",
+    link: "https://www.linkedin.com/in/govindaspuri",
   },
   {
     name: "Email",
-    username: "founder@govindapuri.com",
+    username: "puriprogress@gmail.com",
     icon: Icons.gmail,
-    link: "mailto:founder@govindapuri.com",
+    link: "mailto:puriprogress@gmail.com",
   },
 ];

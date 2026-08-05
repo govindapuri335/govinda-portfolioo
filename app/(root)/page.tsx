@@ -10,17 +10,12 @@ import { ClientPageWrapper } from "@/components/common/client-page-wrapper";
 import { Icons } from "@/components/common/icons";
 import SkillsCard from "@/components/skills/skills-card";
 import { Button, buttonVariants } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { experienceSections, heroParagraphs } from "@/config/experience";
 import { pagesConfig } from "@/config/pages";
 import { siteConfig } from "@/config/site";
-import { getFeaturedBlogs } from "@/lib/blogs";
 import { getLearning } from "@/lib/admin/learning";
+import { getAllBlogsMeta } from "@/lib/blogs";
 import { getFeaturedSkills } from "@/lib/skills";
 import { cn } from "@/lib/utils";
 
@@ -34,13 +29,7 @@ export const metadata: Metadata = {
   },
 };
 
-function BulletCard({
-  title,
-  bullets,
-}: {
-  title: string;
-  bullets: string[];
-}) {
+function BulletCard({ title, bullets }: { title: string; bullets: string[] }) {
   return (
     <Card className="h-full border bg-background">
       <CardHeader className="space-y-2 pb-3">
@@ -63,12 +52,15 @@ function BulletCard({
 export const revalidate = 3600;
 
 export default async function IndexPage() {
-  const featuredBlogs = await getFeaturedBlogs();
+  const latestBlogs = (await getAllBlogsMeta()).slice(0, 3);
   const featuredSkills = await getFeaturedSkills();
   const learning = await getLearning();
 
   const learningSections = [
-    { title: learning.currentFocusTitle, bullets: learning.currentFocusBullets },
+    {
+      title: learning.currentFocusTitle,
+      bullets: learning.currentFocusBullets,
+    },
     {
       title: learning.certificationsTitle,
       bullets: learning.certificationsBullets,
@@ -252,7 +244,7 @@ export default async function IndexPage() {
           </AnimatedText>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full items-stretch">
-          {featuredBlogs.map((blog, index) => (
+          {latestBlogs.map((blog, index) => (
             <AnimatedSection
               key={blog.slug}
               delay={0.1 * (index + 1)}

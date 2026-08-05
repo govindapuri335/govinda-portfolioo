@@ -114,7 +114,7 @@ export function LearningForm({ initial }: Props) {
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6">
       <div className="space-y-8">
         {/* Section 1: Current Focus */}
-        <section className="space-y-3 rounded-md border border-border p-5">
+        <section className="space-y-3 rounded-md border border-border p-4 sm:p-5">
           <div>
             <h2 className="font-heading text-lg">Current Focus</h2>
             <p className="text-xs text-muted-foreground">
@@ -124,7 +124,10 @@ export function LearningForm({ initial }: Props) {
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="current-focus-title" className="text-sm font-medium">
+            <label
+              htmlFor="current-focus-title"
+              className="text-sm font-medium"
+            >
               Section heading
             </label>
             <Input
@@ -135,7 +138,7 @@ export function LearningForm({ initial }: Props) {
             />
           </div>
 
-          <div className="flex items-center justify-between pt-2">
+          <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
             <span className="text-sm font-medium">Bullet points</span>
             <Button
               type="button"
@@ -150,11 +153,11 @@ export function LearningForm({ initial }: Props) {
           <div className="space-y-3">
             {currentFocusBullets.map((item, i) => (
               <div key={i} className="space-y-2">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                   <label className="text-xs font-medium text-muted-foreground">
                     Bullet {i + 1}
                   </label>
-                  <div className="flex items-center gap-1">
+                  <div className="flex flex-wrap items-center gap-1">
                     <Button
                       type="button"
                       variant="outline"
@@ -210,12 +213,12 @@ export function LearningForm({ initial }: Props) {
         </section>
 
         {/* Section 2: Certifications & Tools */}
-        <section className="space-y-3 rounded-md border border-border p-5">
+        <section className="space-y-3 rounded-md border border-border p-4 sm:p-5">
           <div>
             <h2 className="font-heading text-lg">Certifications &amp; Tools</h2>
             <p className="text-xs text-muted-foreground">
-              Right card in the Certifications &amp; Learning section. Heading
-              + bullet list.
+              Right card in the Certifications &amp; Learning section. Heading +
+              bullet list.
             </p>
           </div>
 
@@ -234,7 +237,7 @@ export function LearningForm({ initial }: Props) {
             />
           </div>
 
-          <div className="flex items-center justify-between pt-2">
+          <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
             <span className="text-sm font-medium">Bullet points</span>
             <Button
               type="button"
@@ -249,11 +252,11 @@ export function LearningForm({ initial }: Props) {
           <div className="space-y-3">
             {certificationsBullets.map((item, i) => (
               <div key={i} className="space-y-2">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                   <label className="text-xs font-medium text-muted-foreground">
                     Bullet {i + 1}
                   </label>
-                  <div className="flex items-center gap-1">
+                  <div className="flex flex-wrap items-center gap-1">
                     <Button
                       type="button"
                       variant="outline"

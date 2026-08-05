@@ -1,16 +1,18 @@
-import fs from "fs";
-import path from "path";
+import "server-only";
 
-import matter from "gray-matter";
-import { remark } from "remark";
-import remarkGfm from "remark-gfm";
-import remarkHtml from "remark-html";
+import { and, desc, eq } from "drizzle-orm";
 
-const BLOGS_DIR = path.join(process.cwd(), "content/blogs");
+import { db } from "@/db/client";
+import { posts } from "@/db/schema";
 
+/**
+ * Public shape consumed by the UI. Kept structurally identical to the previous
+ * filesystem-driven types so downstream components (BlogCard, list page, post
+ * page, sitemap, JSON-LD) don't need to change.
+ */
 export interface BlogFrontmatter {
   title: string;
-  date: string;
+  date: string; // ISO string
   description: string;
   tags: string[];
   coverImage?: string;
@@ -26,95 +28,122 @@ export interface BlogPost extends BlogMeta {
   contentHtml: string;
 }
 
-function ensureBlogsDir() {
-  if (!fs.existsSync(BLOGS_DIR)) {
-    fs.mkdirSync(BLOGS_DIR, { recursive: true });
-  }
-}
+type PostRow = typeof posts.$inferSelect;
 
-/** Returns all blog slugs (file names without .md) */
-export function getAllBlogSlugs(): string[] {
-  ensureBlogsDir();
-  return fs
-    .readdirSync(BLOGS_DIR)
-    .filter((f) => f.endsWith(".md"))
-    .map((f) => f.replace(/\.md$/, ""));
-}
-
-/** Returns metadata for all blogs, sorted newest first */
-export function getAllBlogsMeta(): BlogMeta[] {
-  ensureBlogsDir();
-  const slugs = getAllBlogSlugs();
-
-  const blogs = slugs.map((slug) => {
-    const filePath = path.join(BLOGS_DIR, `${slug}.md`);
-    const raw = fs.readFileSync(filePath, "utf8");
-    const normalized = normalizeRawMarkdown(raw);
-    const { data } = matter(normalized);
-    return {
-      slug,
-      ...(data as BlogFrontmatter),
-    } as BlogMeta;
-  });
-
-  return blogs.sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
-}
-
-/** Returns full blog post (metadata + parsed HTML content) for a given slug */
-export async function getBlogPost(slug: string): Promise<BlogPost> {
-  const filePath = path.join(BLOGS_DIR, `${slug}.md`);
-  const raw = fs.readFileSync(filePath, "utf8");
-  const normalized = normalizeRawMarkdown(raw);
-  const { data, content } = matter(normalized);
-
-  const processed = await remark()
-    .use(remarkGfm)
-    .use(remarkHtml, { sanitize: false })
-    .process(content);
-
-  const contentHtml = processed.toString();
-
+function rowToMeta(row: PostRow): BlogMeta {
   return {
-    slug,
-    ...(data as BlogFrontmatter),
-    contentHtml,
+    slug: row.slug,
+    title: row.title,
+    date: row.date.toISOString(),
+    description: row.description ?? "",
+    tags: row.tags ?? [],
+    coverImage: row.coverImage ?? undefined,
+    readingTime: row.readingTime ?? undefined,
+    featured: row.featured ?? false,
+  };
+}
+
+function rowToPost(row: PostRow): BlogPost {
+  return {
+    ...rowToMeta(row),
+    contentHtml: row.contentHtml ?? "",
   };
 }
 
 /**
- * Some editors or tools may wrap the markdown file in a fenced code block
- * (for example: ````markdown\n--- frontmatter ---\n...\n```\n````). This helper
- * strips any outer code-fence lines so gray-matter can parse the frontmatter.
+ * Wraps a DB query in a try/catch that logs and returns a fallback. This
+ * keeps `next build` from failing entirely if the DB is unreachable at build
+ * time (e.g. during initial deploys before DATABASE_URL is provisioned).
+ * In production ISR will re-attempt on the next revalidation window.
  */
-function normalizeRawMarkdown(raw: string): string {
-  // Split into lines and strip any leading/trailing code-fence lines.
-  const lines = raw.split(/\r?\n/);
-
-  // Remove leading fence lines (e.g., ```markdown or ````markdown)
-  while (lines.length > 0 && /^\s*`{3,}/.test(lines[0])) {
-    lines.shift();
+async function safeQuery<T>(label: string, run: () => Promise<T>, fallback: T): Promise<T> {
+  try {
+    return await run();
+  } catch (err) {
+    console.error(`[blogs] ${label} failed:`, err);
+    return fallback;
   }
-
-  // Remove trailing fence lines
-  while (lines.length > 0 && /^\s*`{3,}/.test(lines[lines.length - 1])) {
-    lines.pop();
-  }
-
-  return lines.join("\n");
 }
 
-/** Returns the featured blogs (marked featured: true), falling back to the latest 3 */
-export function getFeaturedBlogs(): BlogMeta[] {
-  const all = getAllBlogsMeta();
-  const featured = all.filter((b) => b.featured);
-  return featured.length > 0 ? featured.slice(0, 3) : all.slice(0, 3);
+/** Slugs of all *published* posts. Used by `generateStaticParams`. */
+export async function getAllBlogSlugs(): Promise<string[]> {
+  return safeQuery(
+    "getAllBlogSlugs",
+    async () => {
+      const rows = await db
+        .select({ slug: posts.slug })
+        .from(posts)
+        .where(eq(posts.published, true));
+      return rows.map((r) => r.slug);
+    },
+    []
+  );
 }
 
-/** Estimates reading time from raw markdown content */
+/** Metadata for all *published* posts, newest first. */
+export async function getAllBlogsMeta(): Promise<BlogMeta[]> {
+  return safeQuery(
+    "getAllBlogsMeta",
+    async () => {
+      const rows = await db
+        .select()
+        .from(posts)
+        .where(eq(posts.published, true))
+        .orderBy(desc(posts.date));
+      return rows.map(rowToMeta);
+    },
+    []
+  );
+}
+
+/**
+ * Full post by slug. Only returns *published* posts on the public site.
+ * Returns null when not found (callers should map to `notFound()`).
+ */
+export async function getBlogPost(slug: string): Promise<BlogPost | null> {
+  return safeQuery(
+    "getBlogPost",
+    async () => {
+      const rows = await db
+        .select()
+        .from(posts)
+        .where(and(eq(posts.slug, slug), eq(posts.published, true)))
+        .limit(1);
+      return rows[0] ? rowToPost(rows[0]) : null;
+    },
+    null
+  );
+}
+
+/** Featured posts (published + featured), falls back to the latest 3 published. */
+export async function getFeaturedBlogs(): Promise<BlogMeta[]> {
+  return safeQuery(
+    "getFeaturedBlogs",
+    async () => {
+      const featured = await db
+        .select()
+        .from(posts)
+        .where(and(eq(posts.published, true), eq(posts.featured, true)))
+        .orderBy(desc(posts.date))
+        .limit(3);
+
+      if (featured.length > 0) return featured.map(rowToMeta);
+
+      const latest = await db
+        .select()
+        .from(posts)
+        .where(eq(posts.published, true))
+        .orderBy(desc(posts.date))
+        .limit(3);
+      return latest.map(rowToMeta);
+    },
+    []
+  );
+}
+
+/** Estimates reading time (~200 wpm). Accepts either markdown or plain text. */
 export function estimateReadingTime(content: string): number {
   const wordsPerMinute = 200;
-  const wordCount = content.trim().split(/\s+/).length;
-  return Math.ceil(wordCount / wordsPerMinute);
+  const wordCount = content.trim().split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.ceil(wordCount / wordsPerMinute));
 }

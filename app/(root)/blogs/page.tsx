@@ -38,8 +38,10 @@ export const metadata: Metadata = {
   },
 };
 
-export default function BlogsPage() {
-  const blogs = getAllBlogsMeta();
+export const revalidate = 3600;
+
+export default async function BlogsPage() {
+  const blogs = await getAllBlogsMeta();
 
   // CollectionPage + Blog JSON-LD for the listing page
   const blogListSchema = {

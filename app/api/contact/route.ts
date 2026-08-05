@@ -1,97 +1,118 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
-export async function POST(req: Request) {
-  // trim because .env entries sometimes include stray spaces
-  let formLink = process.env.GOOGLE_FORM_LINK?.trim();
-  if (!formLink) {
-    return new NextResponse("Please configure the env variables", {
-      status: 500,
-    });
-  }
+import { createContactSubmission } from "@/lib/admin/contacts";
+import { sendContactNotification } from "@/lib/mailer";
+import { limit } from "@/lib/rate-limit";
 
-  // Google form URLs are typically the "viewform" version, possibly with
-  // query parameters (`?usp=...`). we need to convert that to a clean
-  // `/formResponse` endpoint.  The logic below strips any search/query string
-  // and removes trailing `/viewform` or `/formResponse` segments so we can
-  // append `/formResponse` ourselves.
+export const runtime = "nodejs";
+
+/**
+ * Public contact-form endpoint.
+ *
+ * Flow:
+ *   1. Validate payload with zod (matches the schema in the client form).
+ *   2. Rate-limit per IP (5 submissions / 10 min) to deter spam. Falls open
+ *      when Upstash is unconfigured.
+ *   3. Insert into `contact_submissions` (source of truth).
+ *   4. Fire an email notification to the site owner via Resend. Email failure
+ *      is logged but does NOT fail the request — the message is safely saved.
+ *
+ * The admin panel (/admin/contacts) surfaces every stored submission for
+ * later reference.
+ */
+
+const SocialSchema = z.object({
+  platform: z.string().trim().max(60),
+  value: z.string().trim().max(300),
+});
+
+const ContactSchema = z
+  .object({
+    name: z.string().trim().min(3).max(120),
+    email: z.string().trim().email().max(320),
+    message: z.string().trim().min(10).max(5000),
+    socials: z.array(SocialSchema).max(10).optional(),
+  })
+  .strict();
+
+function getClientIp(req: NextRequest): string {
+  const xff = req.headers.get("x-forwarded-for");
+  if (xff) return xff.split(",")[0]!.trim();
+  const real = req.headers.get("x-real-ip");
+  if (real) return real.trim();
+  return "unknown";
+}
+
+export async function POST(req: NextRequest) {
+  // Parse + validate first so obvious garbage doesn't consume a rate-limit slot.
+  let body: unknown;
   try {
-    const u = new URL(formLink);
-    u.search = ""; // drop query params
-    u.hash = "";
-    u.pathname = u.pathname.replace(/\/(viewform|formResponse)(?:\/.*)?$/, "");
-    // remove trailing slash as well
-    formLink = u.toString().replace(/\/+$/, "");
+    body = await req.json();
   } catch {
-    // if parsing fails, just leave formLink as-is; fetch will error later
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  // configure this according to your google form; each value should be the
-  // `entry.xxxxxx` identifier for the corresponding question.
-  const fieldIdName = process.env.GOOGLE_FORM_FIELD_ID_NAME;
-  const fieldIdEmail = process.env.GOOGLE_FORM_FIELD_ID_EMAIL;
-  const fieldIdMessage = process.env.GOOGLE_FORM_FIELD_ID_MESSAGE;
-  const fieldIdSocial = process.env.GOOGLE_FORM_FIELD_ID_SOCIAL;
-
-  if (!fieldIdName || !fieldIdEmail || !fieldIdMessage) {
-    return new NextResponse("Form field IDs are not configured properly", {
-      status: 500,
-    });
+  const parsed = ContactSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: "Validation failed", issues: parsed.error.flatten() },
+      { status: 400 }
+    );
   }
 
-  // warn if any of the configured IDs are identical, because that usually
-  // indicates the user forgot to set real values (the placeholder
-  // `entry_field_id_gform` is used in .env.copy).  Google will then receive
-  // multiple values for the same question which may be silently dropped.
-  const ids = [fieldIdName, fieldIdEmail, fieldIdMessage, fieldIdSocial].filter(
-    Boolean
-  );
-  const unique = new Set(ids);
-  if (unique.size !== ids.length) {
-    console.warn("Some GOOGLE_FORM_FIELD_ID_* values are duplicates", ids);
+  const ip = getClientIp(req);
+  const rl = await limit(`contact:${ip}`, 5, 600);
+  if (!rl.ok) {
+    return NextResponse.json(
+      {
+        error: "Too many submissions. Please try again later.",
+        retryAfter: rl.resetInSeconds,
+      },
+      { status: 429, headers: { "Retry-After": String(rl.resetInSeconds) } }
+    );
   }
 
+  const userAgent = req.headers.get("user-agent") ?? null;
+
+  // 1. Persist first — never lose a legitimate message even if mail fails.
+  let savedId: number;
   try {
-    const body = await req.json();
-    const { name, message, social, socials, email } = body as any;
-
-    // build query parameters with proper URL encoding
-    const params = new URLSearchParams();
-    if (fieldIdName) params.append(fieldIdName.trim(), name);
-    if (fieldIdEmail) params.append(fieldIdEmail.trim(), email);
-    if (fieldIdMessage) params.append(fieldIdMessage.trim(), message);
-    if (fieldIdSocial) {
-      let socialValue = "";
-      if (socials && Array.isArray(socials)) {
-        // convert array of {platform,value} to newline-separated string
-        socialValue = socials
-          .map((s: any) => {
-            const plat = s.platform ? `${s.platform}: ` : "";
-            return plat + (s.value || "");
-          })
-          .filter((s: string) => s.trim() !== "")
-          .join("\n");
-      } else if (social) {
-        socialValue = social;
-      }
-      if (socialValue) {
-        params.append(fieldIdSocial.trim(), socialValue);
-      }
-    }
-
-    // some google forms include the /viewform path in the link; submit via /formResponse
-    const submitUrl = `${formLink}/formResponse?${params.toString()}`;
-    console.log("submitting contact form to", submitUrl);
-
-    const res = await fetch(submitUrl);
-    if (!res.ok) {
-      // log for debugging; google returns 200 or 302 for successful form posts
-      console.error("Google form submit failed", res.status, await res.text());
-      return new NextResponse("Failed to submit form", { status: 502 });
-    }
-
-    return NextResponse.json("Success!");
-  } catch (error) {
-    console.log(error);
-    return new NextResponse("Internal error", { status: 500 });
+    const saved = await createContactSubmission({
+      name: parsed.data.name,
+      email: parsed.data.email,
+      message: parsed.data.message,
+      socials: parsed.data.socials ?? [],
+      ip,
+      userAgent,
+    });
+    savedId = saved.id;
+  } catch (e) {
+    console.error("[/api/contact] DB insert failed", e);
+    return NextResponse.json(
+      { error: "Could not save your message. Please try again." },
+      { status: 500 }
+    );
   }
+
+  // 2. Fire notification email (soft-fail: does not block the response).
+  const mail = await sendContactNotification({
+    name: parsed.data.name,
+    email: parsed.data.email,
+    message: parsed.data.message,
+    socials: parsed.data.socials ?? [],
+    ip,
+    userAgent,
+  });
+  if (!mail.ok) {
+    console.warn(
+      `[/api/contact] submission #${savedId} saved but email failed: ${mail.error}`
+    );
+  }
+
+  return NextResponse.json({
+    ok: true,
+    id: savedId,
+    emailSent: mail.ok,
+  });
 }

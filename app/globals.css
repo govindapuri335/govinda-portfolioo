@@ -666,3 +666,65 @@
   margin: 1.5rem auto;
   display: block;
 }
+
+/* Syntax highlighting (lowlight / highlight.js token classes) */
+.blog-content .hljs-comment,
+.blog-content .hljs-quote {
+  color: hsl(var(--muted-foreground));
+  font-style: italic;
+}
+.blog-content .hljs-keyword,
+.blog-content .hljs-selector-tag,
+.blog-content .hljs-literal,
+.blog-content .hljs-section,
+.blog-content .hljs-link {
+  color: hsl(var(--primary));
+  font-weight: 600;
+}
+.blog-content .hljs-string,
+.blog-content .hljs-title,
+.blog-content .hljs-name,
+.blog-content .hljs-type,
+.blog-content .hljs-attribute,
+.blog-content .hljs-symbol,
+.blog-content .hljs-bullet,
+.blog-content .hljs-addition {
+  color: hsl(142 71% 45%);
+}
+.blog-content .hljs-number,
+.blog-content .hljs-meta,
+.blog-content .hljs-built_in,
+.blog-content .hljs-builtin-name {
+  color: hsl(30 90% 55%);
+}
+.blog-content .hljs-variable,
+.blog-content .hljs-template-variable,
+.blog-content .hljs-regexp,
+.blog-content .hljs-selector-attr,
+.blog-content .hljs-selector-pseudo,
+.blog-content .hljs-selector-class,
+.blog-content .hljs-selector-id {
+  color: hsl(280 70% 60%);
+}
+.blog-content .hljs-tag,
+.blog-content .hljs-deletion {
+  color: hsl(0 70% 55%);
+}
+.blog-content .hljs-emphasis {
+  font-style: italic;
+}
+.blog-content .hljs-strong {
+  font-weight: 700;
+}
+
+/* Tiptap editor placeholder */
+.blog-content .is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: hsl(var(--muted-foreground));
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+.ProseMirror:focus {
+  outline: none;
+}

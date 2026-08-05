@@ -17,8 +17,12 @@ interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
 }
 
+export const revalidate = 3600;
+// Allow ISR to fill in posts created after build.
+export const dynamicParams = true;
+
 export async function generateStaticParams() {
-  const slugs = getAllBlogSlugs();
+  const slugs = await getAllBlogSlugs();
   return slugs.map((slug) => ({ slug }));
 }
 
@@ -28,8 +32,11 @@ export async function generateMetadata({
   const { slug } = await params;
   try {
     const post = await getBlogPost(slug);
+    if (!post) return { title: "Blog Post Not Found" };
     const ogImage = post.coverImage
-      ? `${siteConfig.url}${post.coverImage}`
+      ? post.coverImage.startsWith("http")
+        ? post.coverImage
+        : `${siteConfig.url}${post.coverImage}`
       : siteConfig.ogImage;
 
     return {
@@ -81,12 +88,8 @@ export async function generateMetadata({
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const { slug } = await params;
 
-  let post;
-  try {
-    post = await getBlogPost(slug);
-  } catch {
-    notFound();
-  }
+  const post = await getBlogPost(slug);
+  if (!post) notFound();
 
   const formattedDate = new Date(post.date).toLocaleDateString("en-US", {
     month: "long",
@@ -96,7 +99,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
   const isoDate = new Date(post.date).toISOString();
   const ogImage = post.coverImage
-    ? `${siteConfig.url}${post.coverImage}`
+    ? post.coverImage.startsWith("http")
+      ? post.coverImage
+      : `${siteConfig.url}${post.coverImage}`
     : siteConfig.ogImage;
 
   // BlogPosting JSON-LD — the single most important schema for article SEO
