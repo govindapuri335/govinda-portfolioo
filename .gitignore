@@ -24,9 +24,12 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# env
+# env  --  NEVER commit files with real secrets.
+# The template `.env.example` IS committed (must contain only placeholders).
 .env
-.env*.local
+.env.*
+!.env.example
+
 
 # vercel
 .vercel

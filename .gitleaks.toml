@@ -1,0 +1,27 @@
+# gitleaks configuration. Extends the built-in ruleset with allow-listed
+# paths and known-safe placeholder strings we intentionally commit.
+# Docs: https://github.com/gitleaks/gitleaks#configuration
+
+[extend]
+useDefault = true
+
+# ---------------------------------------------------------------------------
+# Global allowlist: things that look like secrets but aren't.
+# ---------------------------------------------------------------------------
+[allowlist]
+description = "Global allowlist for safe placeholders and generated files"
+
+paths = [
+  '''(^|/)\.env\.example$''',      # template, must never hold real secrets
+  '''(^|/)package-lock\.json$''',  # noisy hashes trigger false positives
+  '''(^|/)node_modules(/|$)''',
+  '''(^|/)\.next(/|$)''',
+]
+
+# Known-safe placeholder strings.
+regexes = [
+  '''postgresql://user:password@host:5432/dbname''',
+  '''change-me-to-something-strong''',
+  '''change-me-to-a-long-random-string-of-at-least-32-chars''',
+  '''re_your_key_here''',
+]

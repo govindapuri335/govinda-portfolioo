@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# Pre-commit hook: scan staged changes for secrets with gitleaks.
+# If gitleaks isn't installed, we warn (not block) so new contributors aren't
+# stuck. Install with: brew install gitleaks
+set -e
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+  cat <<EOF
+[pre-commit] WARNING: gitleaks is not installed. Skipping secret scan.
+             Install it so leaked secrets can't slip into a commit:
+                 brew install gitleaks
+EOF
+  exit 0
+fi
+
+# --staged: only what's about to be committed. --redact: hide the value in output.
+# --verbose: show file+line. Non-zero exit blocks the commit.
+if ! gitleaks protect --staged --redact --verbose --no-banner; then
+  cat <<EOF
+
+[pre-commit] BLOCKED: gitleaks detected a secret in staged changes.
+
+  1. Remove the secret from the file (use process.env or .env instead).
+  2. Rotate the secret at its source (Resend/Cloudinary/Supabase/etc.)
+     because assume anyone who saw the file has it.
+  3. Re-stage and commit again.
+
+  Bypass this check ONLY in an emergency with:
+      git commit --no-verify
+EOF
+  exit 1
+fi
