@@ -3,9 +3,9 @@ import { MetadataRoute } from "next";
 import { siteConfig } from "@/config/site";
 import { getAllBlogsMeta } from "@/lib/blogs";
 
-// Regenerate the sitemap at most once per hour; on-demand revalidation from
-// the admin API routes will refresh it immediately when posts change.
-export const revalidate = 3600;
+// Render on-demand so a slow/unreachable DB at build time doesn't break the
+// deploy. Cached briefly at the edge.
+export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = siteConfig.url;
@@ -50,8 +50,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  // Blog post pages — each gets its own sitemap entry with correct date
-  const blogs = await getAllBlogsMeta();
+  // Blog post pages — each gets its own sitemap entry with correct date.
+  // If the DB is unreachable, return the static routes instead of failing.
+  let blogs: Awaited<ReturnType<typeof getAllBlogsMeta>> = [];
+  try {
+    blogs = await getAllBlogsMeta();
+  } catch (err) {
+    console.error("[sitemap] getAllBlogsMeta failed:", err);
+  }
   const blogRoutes: MetadataRoute.Sitemap = blogs.map((blog) => ({
     url: `${baseUrl}/blogs/${blog.slug}`,
     lastModified: new Date(blog.date),

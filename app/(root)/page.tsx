@@ -49,7 +49,7 @@ function BulletCard({ title, bullets }: { title: string; bullets: string[] }) {
   );
 }
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 export default async function IndexPage() {
   const latestBlogs = (await getAllBlogsMeta()).slice(0, 3);

@@ -17,13 +17,19 @@ interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
 }
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 // Allow ISR to fill in posts created after build.
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
-  const slugs = await getAllBlogSlugs();
-  return slugs.map((slug) => ({ slug }));
+  try {
+    const slugs = await getAllBlogSlugs();
+    return slugs.map((slug) => ({ slug }));
+  } catch {
+    // If the DB is unreachable at build time, skip prerender and rely on
+    // on-demand rendering. Prevents build-time failures.
+    return [];
+  }
 }
 
 export async function generateMetadata({

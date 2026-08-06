@@ -41,9 +41,7 @@ export const metadata: Metadata = {
   },
 };
 
-// Revalidated on demand via revalidatePath("/about") after admin edits, and
-// hourly as a safety net.
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 async function loadContent() {
   try {

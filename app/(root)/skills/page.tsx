@@ -36,9 +36,7 @@ export const metadata: Metadata = {
   },
 };
 
-// Revalidated on demand via revalidatePath("/skills") after admin edits, and
-// hourly as a safety net.
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 export default async function SkillsPage() {
   const skills = await getPublicSkills();
