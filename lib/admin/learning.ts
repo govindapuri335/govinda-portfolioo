@@ -27,23 +27,36 @@ const defaults = {
  * No auth here — the public pages also call this.
  */
 export async function getLearning(): Promise<LearningPage> {
-  const rows = await db
-    .select()
-    .from(learningPage)
-    .orderBy(asc(learningPage.id))
-    .limit(1);
-  if (rows[0]) return rows[0];
+  try {
+    const rows = await db
+      .select()
+      .from(learningPage)
+      .orderBy(asc(learningPage.id))
+      .limit(1);
+    if (rows[0]) return rows[0];
 
-  const [inserted] = await db
-    .insert(learningPage)
-    .values({
+    const [inserted] = await db
+      .insert(learningPage)
+      .values({
+        currentFocusTitle: defaults.currentFocusTitle,
+        currentFocusBullets: defaults.currentFocusBullets,
+        certificationsTitle: defaults.certificationsTitle,
+        certificationsBullets: defaults.certificationsBullets,
+      })
+      .returning();
+    return inserted;
+  } catch {
+    // DB unreachable (e.g. during the static build) — return static defaults
+    // so the page never renders empty. ISR fills in real data at runtime.
+    return {
+      id: 0,
       currentFocusTitle: defaults.currentFocusTitle,
-      currentFocusBullets: defaults.currentFocusBullets,
+      currentFocusBullets: [...defaults.currentFocusBullets],
       certificationsTitle: defaults.certificationsTitle,
-      certificationsBullets: defaults.certificationsBullets,
-    })
-    .returning();
-  return inserted;
+      certificationsBullets: [...defaults.certificationsBullets],
+      updatedAt: new Date(),
+    };
+  }
 }
 
 export interface LearningUpdate {

@@ -16,31 +16,48 @@ import { professionalExperience } from "@/config/experience";
  * empty.
  */
 export async function listExperiences(): Promise<Experience[]> {
-  const rows = await db
-    .select()
-    .from(experiences)
-    .orderBy(asc(experiences.sortOrder), asc(experiences.id));
-  if (rows.length > 0) return rows;
+  try {
+    const rows = await db
+      .select()
+      .from(experiences)
+      .orderBy(asc(experiences.sortOrder), asc(experiences.id));
+    if (rows.length > 0) return rows;
 
-  await db
-    .insert(experiences)
-    .values(
-      professionalExperience.map((r, i) => ({
-        title: r.title,
-        company: r.company,
-        date: r.date,
-        location: r.location,
-        description: r.description ?? null,
-        bullets: r.bullets,
-        sortOrder: i,
-      }))
-    )
-    .onConflictDoNothing();
+    await db
+      .insert(experiences)
+      .values(
+        professionalExperience.map((r, i) => ({
+          title: r.title,
+          company: r.company,
+          date: r.date,
+          location: r.location,
+          description: r.description ?? null,
+          bullets: r.bullets,
+          sortOrder: i,
+        }))
+      )
+      .onConflictDoNothing();
 
-  return db
-    .select()
-    .from(experiences)
-    .orderBy(asc(experiences.sortOrder), asc(experiences.id));
+    return db
+      .select()
+      .from(experiences)
+      .orderBy(asc(experiences.sortOrder), asc(experiences.id));
+  } catch {
+    // DB unreachable (e.g. during the static build) — fall back to the static
+    // config so the public page never renders empty. ISR fills in real data.
+    return professionalExperience.map<Experience>((r, i) => ({
+      id: i + 1,
+      title: r.title,
+      company: r.company,
+      date: r.date,
+      location: r.location,
+      description: r.description ?? null,
+      bullets: r.bullets,
+      sortOrder: i,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }));
+  }
 }
 
 export async function getExperienceById(

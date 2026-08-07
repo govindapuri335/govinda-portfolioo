@@ -11,10 +11,15 @@ import { certificates, type Certificate } from "@/db/schema";
  * the admin UI.
  */
 export async function listCertificates(): Promise<Certificate[]> {
-  return db
-    .select()
-    .from(certificates)
-    .orderBy(asc(certificates.sortOrder), asc(certificates.id));
+  try {
+    return await db
+      .select()
+      .from(certificates)
+      .orderBy(asc(certificates.sortOrder), asc(certificates.id));
+  } catch {
+    // DB unreachable (e.g. during the static build) — return empty list.
+    return [];
+  }
 }
 
 export async function getCertificateById(

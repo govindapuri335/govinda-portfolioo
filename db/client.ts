@@ -21,6 +21,17 @@ declare global {
 }
 
 function createDb() {
+  // During `next build`, static pages are prerendered. We must NOT connect to
+  // the DB then: the build machine may not reach it (and a slow/unreachable
+  // DB otherwise hangs the build on the 60s pageless timeout). Runtime ISR
+  // regenerates pages with real data; pages already fall back to static config.
+  if (process.env.NEXT_PHASE === "phase-production-build") {
+    throw new Error(
+      "DB access is disabled during the static build phase. " +
+        "Pages fall back to static/default content and are revalidated at runtime."
+    );
+  }
+
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
     throw new Error(
