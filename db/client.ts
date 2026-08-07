@@ -41,13 +41,21 @@ function createDb() {
   const client =
     global.__pgClient ??
     postgres(connectionString, {
-      max: process.env.NODE_ENV === "production" ? 1 : 10,
+      // Pool size: a few connections so parallel queries (e.g. the admin
+      // dashboard's Promise.allSettled batch) run concurrently instead of
+      // queueing behind a single connection. Supabase's pooled endpoint
+      // (pgbouncer transaction mode) handles this fine.
+      max: 5,
       prepare: false, // safer on pooled connections (pgbouncer, Neon, etc.)
       // Fail fast (instead of hanging for minutes) when the DB is unreachable,
       // so the graceful fallbacks in pages render immediately.
       connect_timeout: 5,
+      idle_timeout: 20,
+      max_lifetime: 60 * 30,
     });
-  if (process.env.NODE_ENV !== "production") global.__pgClient = client;
+  // Cache on globalThis so a warm serverless instance reuses its connection
+  // pool across requests instead of reconnecting every time.
+  if (!global.__pgClient) global.__pgClient = client;
   return drizzle(client, { schema });
 }
 
