@@ -32,6 +32,9 @@ function createDb() {
     postgres(connectionString, {
       max: process.env.NODE_ENV === "production" ? 1 : 10,
       prepare: false, // safer on pooled connections (pgbouncer, Neon, etc.)
+      // Fail fast (instead of hanging for minutes) when the DB is unreachable,
+      // so the graceful fallbacks in pages render immediately.
+      connect_timeout: 5,
     });
   if (process.env.NODE_ENV !== "production") global.__pgClient = client;
   return drizzle(client, { schema });

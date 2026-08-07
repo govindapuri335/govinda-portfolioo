@@ -18,7 +18,7 @@ import { listCertificates } from "@/lib/admin/certificates";
 import { listExperiences } from "@/lib/admin/experience";
 import { getLearning } from "@/lib/admin/learning";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: pagesConfig.experience.metadata.title,

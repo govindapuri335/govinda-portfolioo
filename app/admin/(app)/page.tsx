@@ -12,50 +12,52 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Admin" };
 
 export default async function AdminDashboardPage() {
-  // Cheap counts to show at-a-glance stats. Falls back gracefully if the DB
-  // is unreachable so the dashboard still renders.
-  let totalBlogs = 0;
-  let publishedBlogs = 0;
-  let draftBlogs = 0;
-  try {
-    const all = await listAllPosts();
-    totalBlogs = all.length;
-    publishedBlogs = all.filter((p) => p.published).length;
-    draftBlogs = totalBlogs - publishedBlogs;
-  } catch {
-    // ignore — counts stay at 0
-  }
+  // Cheap counts to show at-a-glance stats. All queries run concurrently and
+  // each falls back gracefully if the DB is unreachable so the dashboard still
+  // renders.
+  const resolved = (await Promise.allSettled([
+    listAllPosts().then((posts) => ({
+      published: posts.filter((p) => p.published).length,
+      totalBlogs: posts.length,
+      draftBlogs: posts.filter((p) => !p.published).length,
+    })),
+    listSkills().then((s) => ({ totalSkills: s.length })),
+    Promise.all([listExperiences(), listCertificates()]).then(
+      ([exp, certs]) => ({
+        totalExperiences: exp.length,
+        totalCertificates: certs.length,
+      })
+    ),
+    getContactCounts().then((counts) => ({
+      contactTotal: counts.total,
+      contactUnread: counts.unread,
+    })),
+  ]).then((results) =>
+    results.map(
+      (r) =>
+        (r.status === "fulfilled" ? r.value : {}) as {
+          published?: number;
+          totalBlogs?: number;
+          draftBlogs?: number;
+          totalSkills?: number;
+          totalExperiences?: number;
+          totalCertificates?: number;
+          contactTotal?: number;
+          contactUnread?: number;
+        }
+    )
+  )) as [
+    {
+      published?: number;
+      totalBlogs?: number;
+      draftBlogs?: number;
+    },
+    { totalSkills?: number },
+    { totalExperiences?: number; totalCertificates?: number },
+    { contactTotal?: number; contactUnread?: number }
+  ];
 
-  let totalSkills = 0;
-  try {
-    const s = await listSkills();
-    totalSkills = s.length;
-  } catch {
-    // ignore
-  }
-
-  let totalExperiences = 0;
-  let totalCertificates = 0;
-  try {
-    const [exp, certs] = await Promise.all([
-      listExperiences(),
-      listCertificates(),
-    ]);
-    totalExperiences = exp.length;
-    totalCertificates = certs.length;
-  } catch {
-    // ignore
-  }
-
-  let contactTotal = 0;
-  let contactUnread = 0;
-  try {
-    const counts = await getContactCounts();
-    contactTotal = counts.total;
-    contactUnread = counts.unread;
-  } catch {
-    // ignore
-  }
+  const [{ published = 0, totalBlogs = 0, draftBlogs = 0 }, { totalSkills = 0 }, { totalExperiences = 0, totalCertificates = 0 }, { contactTotal = 0, contactUnread = 0 }] = resolved;
 
   return (
     <div className="space-y-6">
@@ -69,7 +71,7 @@ export default async function AdminDashboardPage() {
             </p>
           </div>
           <div className="rounded-full border border-border bg-background/80 px-3 py-1.5 text-sm text-muted-foreground shadow-sm">
-            {totalBlogs} total posts · {publishedBlogs} published
+            {totalBlogs} total posts · {published} published
           </div>
         </div>
       </div>
@@ -101,7 +103,7 @@ export default async function AdminDashboardPage() {
                 </div>
                 <div>
                   <div className="text-lg font-semibold text-foreground">
-                    {publishedBlogs}
+                    {published}
                   </div>
                   <div className="text-xs text-muted-foreground">Published</div>
                 </div>

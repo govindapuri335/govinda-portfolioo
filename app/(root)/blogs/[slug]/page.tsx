@@ -17,9 +17,10 @@ interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
 }
 
-export const dynamic = "force-dynamic";
-// Allow ISR to fill in posts created after build.
+// ISR: prerender at build + revalidate every 5 minutes so new posts appear
+// without forcing a full server render on every request.
 export const dynamicParams = true;
+export const revalidate = 300;
 
 export async function generateStaticParams() {
   try {

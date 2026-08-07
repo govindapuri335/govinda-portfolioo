@@ -5,7 +5,7 @@ import { getAllBlogsMeta } from "@/lib/blogs";
 
 // Render on-demand so a slow/unreachable DB at build time doesn't break the
 // deploy. Cached briefly at the edge.
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = siteConfig.url;
