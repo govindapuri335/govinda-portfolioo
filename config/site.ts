@@ -8,7 +8,7 @@ export const siteConfig = {
   links: {
     twitter: "",
     linkedin: "https://www.linkedin.com/in/govindaspuri",
-    email: "mailto:puriprogress@gmail.com",
+    email: "mailto:founder@govindapuri.com",
   },
 
   // Images - replace these with your own professional files in the `public/` folder

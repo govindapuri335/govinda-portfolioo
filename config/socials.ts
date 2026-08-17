@@ -16,8 +16,8 @@ export const SocialLinks: SocialInterface[] = [
   },
   {
     name: "Email",
-    username: "puriprogress@gmail.com",
+    username: "founder@govindapuri.com",
     icon: Icons.gmail,
-    link: "mailto:puriprogress@gmail.com",
+    link: "mailto:founder@govindapuri.com",
   },
 ];
