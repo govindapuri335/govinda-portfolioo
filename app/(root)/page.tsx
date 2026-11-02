@@ -101,7 +101,7 @@ export default async function IndexPage() {
             delay={0.2}
             className="font-heading text-3xl sm:text-5xl md:text-6xl lg:text-7xl"
           >
-            Hi, I'm Govinda!
+            Hi, I&apos;m Govinda — CLFP
           </AnimatedText>
           <AnimatedText
             as="h3"
