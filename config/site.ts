@@ -1,6 +1,6 @@
 export const siteConfig = {
-  name: "Govinda Puri",
-  authorName: "Govinda Puri",
+  name: "Govinda Puri,CLFP",
+  authorName: "Govinda Puri,CLFP",
   username: "govindapuri",
   description:
     "Govinda Puri — Credit Analyst in Equipment Finance focused on underwriting support, lender submissions, business analysis, credit risk review, and equipment leasing.",
